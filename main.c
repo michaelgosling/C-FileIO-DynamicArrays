@@ -7,9 +7,8 @@
 
 int main() {
     char inName[MAXFNAME];
-    char *fileString;
     FILE *infil;
-    int c, maxrow, maxcol;
+    int num, maxrow, maxcol;
     int **matrix;
 
 
@@ -23,34 +22,30 @@ int main() {
         return 1; // terminate with error
     }
 
-    int n = 0;
-    int n2 = 0;
-
-    while ((c=getc(infil)) != EOF){
-        if (n == 0){
-            char newC = (char)&c;
-            maxrow = (int)newC;
-        } else if (n == 1){
-            char newC = (char)&c;
-            maxcol = (int)newC;
-            matrix = (int **)malloc(sizeof(int *)*maxrow);
-            for (int count = 0; count < maxrow; count++){
-                matrix[count] = (int *)malloc(sizeof(int)*maxcol);
-            }
-        } else {
-            matrix[n][n2] = c;
-            n2++;
-            if (n2 >= maxcol){
-                n2 = 0;
-            }
-        }
-        if (n2 == 0){
-            n++;
-        } else {
-            n2++;
-        }
-
+    // first line of file is 2 digits representing size of matrix in "row column" format
+    // so we read the line and set them here respectively
+    fscanf(infil, "%d %d", &maxrow, &maxcol);
+    
+    // create matrix based on number of rows and columns
+    matrix = (int **)malloc(sizeof(int *)*maxrow);
+    for (int count = 0; count < maxrow; count++) {
+        matrix[count] = (int *)malloc(sizeof(int)*maxcol);
     }
+    
+    int row = 1; // row 0 is not part of matrix
+    int col = 0;
+    
+    // read digit strings into matrix positions
+    while((fscanf(infil, "%d", &num)) != EOF) {
+        matrix[row-1][col] = num; // row - 1 because matrix row 0 is file row 1
+        col++;
+        if (col >= maxcol) {
+            col = 0;
+            row++;
+        }
+    }
+    
+    fclose(infil);
 
     for (int i = 0; i < maxrow; i++){
         for (int j = 0; j < maxcol; j++){
@@ -58,17 +53,5 @@ int main() {
         }
         printf("\n");
     }
-
-
-    // dynamically allocate an array
-    // maxrow = number of matrix rows
-    // maxcol = line length
-
-//    matrix = (int **)malloc(sizeof(int *)*maxrow);
-//
-//    for (int count = 0; count < maxrow; count++)
-//    {
-//        matrix[count] = (int *)malloc(sizeof(int)*maxcol);
-//    }
 
 }
